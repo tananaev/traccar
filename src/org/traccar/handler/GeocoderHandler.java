@@ -82,6 +82,11 @@ public class GeocoderHandler extends ChannelInboundHandlerAdapter {
                         LOGGER.warn("Geocoding failed", e);
                         ctx.fireChannelRead(position);
                     }
+
+                    @Override
+                    public void onSuccess(double speed) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
                 });
             } else {
                 ctx.fireChannelRead(position);

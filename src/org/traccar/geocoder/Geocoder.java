@@ -20,11 +20,13 @@ public interface Geocoder {
     interface ReverseGeocoderCallback {
 
         void onSuccess(String address);
+        void onSuccess(double speed);
 
         void onFailure(Throwable e);
 
     }
 
     String getAddress(double latitude, double longitude, ReverseGeocoderCallback callback);
+    double getSpeedLimit(double latitude, double longitude, ReverseGeocoderCallback callback);
 
 }

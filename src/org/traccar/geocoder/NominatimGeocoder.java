@@ -16,14 +16,18 @@
 package org.traccar.geocoder;
 
 import javax.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NominatimGeocoder extends JsonGeocoder {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NominatimGeocoder.class);
+
     private static String formatUrl(String url, String key, String language) {
         if (url == null) {
-            url = "https://nominatim.openstreetmap.org/reverse";
+            url = "https://nominatim.openstreetmap.org/";
         }
-        url += "?format=json&lat=%f&lon=%f&zoom=18&addressdetails=1";
+        url += "reverse?format=json&lat=%f&lon=%f&zoom=16&addressdetails=1&extratags=1";
         if (key != null) {
             url += "&key=" + key;
         }
@@ -40,7 +44,7 @@ public class NominatimGeocoder extends JsonGeocoder {
     @Override
     public Address parseAddress(JsonObject json) {
         JsonObject result = json.getJsonObject("address");
-
+        JsonObject extrasresult = json.getJsonObject("extratags");
         if (result != null) {
             Address address = new Address();
 
@@ -81,7 +85,11 @@ public class NominatimGeocoder extends JsonGeocoder {
             if (result.containsKey("postcode")) {
                 address.setPostcode(result.getString("postcode"));
             }
-
+            if (extrasresult != null) {
+                if (extrasresult.containsKey("maxspeed")) {
+                    address.setSpeedLimit(extrasresult.getString("maxspeed"));
+                }
+            }
             return address;
         }
 

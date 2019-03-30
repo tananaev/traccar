@@ -29,6 +29,7 @@ import org.traccar.model.DeviceState;
 import org.traccar.model.Event;
 import org.traccar.model.Geofence;
 import org.traccar.model.Position;
+import org.traccar.Context;
 
 @ChannelHandler.Sharable
 public class OverspeedEventHandler extends BaseEventHandler {
@@ -141,6 +142,14 @@ public class OverspeedEventHandler extends BaseEventHandler {
         }
         if (geofenceSpeedLimit > 0) {
             speedLimit = geofenceSpeedLimit;
+        }
+
+        if (Context.getGeocoder() != null) {
+            double geoLimit = Context.getGeocoder().getSpeedLimit(
+                    position.getLatitude(), position.getLongitude(), null);
+            if (geoLimit > 0) {
+                speedLimit = geoLimit;
+            }
         }
 
         if (speedLimit == 0) {

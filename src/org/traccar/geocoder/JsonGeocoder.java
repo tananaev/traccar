@@ -18,6 +18,7 @@ package org.traccar.geocoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.Context;
+import org.traccar.helper.UnitsConverter;
 
 import javax.json.JsonObject;
 import javax.ws.rs.ClientErrorException;
@@ -36,12 +37,19 @@ public abstract class JsonGeocoder implements Geocoder {
     private final AddressFormat addressFormat;
 
     private Map<Map.Entry<Double, Double>, String> cache;
+    private Map<Map.Entry<Double, Double>, Double> speedcache;
 
     public JsonGeocoder(String url, final int cacheSize, AddressFormat addressFormat) {
         this.url = url;
         this.addressFormat = addressFormat;
         if (cacheSize > 0) {
             this.cache = Collections.synchronizedMap(new LinkedHashMap<Map.Entry<Double, Double>, String>() {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry eldest) {
+                    return size() > cacheSize;
+                }
+            });
+            this.speedcache = Collections.synchronizedMap(new LinkedHashMap<Map.Entry<Double, Double>, Double>() {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry eldest) {
                     return size() > cacheSize;
@@ -72,6 +80,31 @@ public abstract class JsonGeocoder implements Geocoder {
             }
         }
         return null;
+    }
+
+    private double handleSpeedResponse(
+            double latitude, double longitude, JsonObject json, ReverseGeocoderCallback callback) {
+
+        Address address = parseAddress(json);
+        if (address.getSpeedLimit() != null) {
+            String speedStr = address.getSpeedLimit();
+            double speed;
+            if (speedStr.endsWith("mph")) {
+                // units in mph
+                speed = UnitsConverter.knotsFromMph(Double.parseDouble(speedStr.replaceAll("[^\\d.]", "")));
+            } else {
+                // units in km/h
+                speed = UnitsConverter.knotsFromKph(Double.parseDouble(speedStr.replaceAll("[^\\d.]", "")));
+            }
+            if (speedcache != null) {
+                speedcache.put(new AbstractMap.SimpleImmutableEntry<>(latitude, longitude), speed);
+            }
+            if (callback != null) {
+                callback.onSuccess(speed);
+            }
+            return speed;
+        }
+        return 0;
     }
 
     @Override
@@ -110,6 +143,44 @@ public abstract class JsonGeocoder implements Geocoder {
             }
         }
         return null;
+    }
+
+    @Override
+    public double getSpeedLimit(
+            final double latitude, final double longitude, final ReverseGeocoderCallback callback) {
+
+        if (speedcache != null) {
+            double cachedSpeedLimit = speedcache.get(new AbstractMap.SimpleImmutableEntry<>(latitude, longitude));
+            if (cachedSpeedLimit != 0) {
+                if (callback != null) {
+                    callback.onSuccess(cachedSpeedLimit);
+                }
+                return cachedSpeedLimit;
+            }
+        }
+
+        Invocation.Builder request = Context.getClient().target(String.format(url, latitude, longitude)).request();
+
+        if (callback != null) {
+            request.async().get(new InvocationCallback<JsonObject>() {
+                @Override
+                public void completed(JsonObject json) {
+                    handleSpeedResponse(latitude, longitude, json, callback);
+                }
+
+                @Override
+                public void failed(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            });
+        } else {
+            try {
+                return handleSpeedResponse(latitude, longitude, request.get(JsonObject.class), null);
+            } catch (ClientErrorException e) {
+                LOGGER.warn("Geocoder network error", e);
+            }
+        }
+        return 0;
     }
 
     public abstract Address parseAddress(JsonObject json);

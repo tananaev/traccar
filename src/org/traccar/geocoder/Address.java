@@ -107,4 +107,14 @@ public class Address {
         this.formattedAddress = formattedAddress;
     }
 
+    private String speedLimit;
+
+    public String getSpeedLimit() {
+        return speedLimit;
+    }
+
+    public void setSpeedLimit(String speedLimit) {
+        this.speedLimit = speedLimit;
+    }
+
 }
