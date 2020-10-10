@@ -56,8 +56,7 @@ import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.Notification;
 import org.traccar.model.User;
-import org.traccar.notification.EventForwarder;
-import org.traccar.notification.JsonTypeEventForwarder;
+import org.traccar.notification.EventForwarderManager;
 import org.traccar.notification.NotificatorManager;
 import org.traccar.reports.model.TripsConfig;
 import org.traccar.sms.SmsManager;
@@ -208,10 +207,10 @@ public final class Context {
         return client;
     }
 
-    private static EventForwarder eventForwarder;
+    private static EventForwarderManager eventForwarderManager;
 
-    public static EventForwarder getEventForwarder() {
-        return eventForwarder;
+    public static EventForwarderManager getEventForwarderManager() {
+        return eventForwarderManager;
     }
 
     private static AttributesManager attributesManager;
@@ -341,9 +340,7 @@ public final class Context {
         serverManager = new ServerManager();
         scheduleManager = new ScheduleManager();
 
-        if (config.getBoolean("event.forward.enable")) {
-            eventForwarder = new JsonTypeEventForwarder();
-        }
+        eventForwarderManager = new EventForwarderManager(config.getBoolean("event.forward.enable"));
 
         attributesManager = new AttributesManager(dataManager);
 

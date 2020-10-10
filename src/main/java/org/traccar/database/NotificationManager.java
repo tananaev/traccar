@@ -35,6 +35,7 @@ import org.traccar.model.Event;
 import org.traccar.model.Notification;
 import org.traccar.model.Position;
 import org.traccar.model.Typed;
+import org.traccar.notification.EventForwarder;
 
 public class NotificationManager extends ExtendedObjectManager<Notification> {
 
@@ -77,7 +78,7 @@ public class NotificationManager extends ExtendedObjectManager<Notification> {
         long deviceId = event.getDeviceId();
         Set<Long> users = Context.getPermissionsManager().getDeviceUsers(deviceId);
         Set<Long> usersToForward = null;
-        if (Context.getEventForwarder() != null) {
+        if (Context.getEventForwarderManager() != null) {
             usersToForward = new HashSet<>();
         }
         for (long userId : users) {
@@ -112,8 +113,11 @@ public class NotificationManager extends ExtendedObjectManager<Notification> {
                 }
             }
         }
-        if (Context.getEventForwarder() != null) {
-            Context.getEventForwarder().forwardEvent(event, position, usersToForward);
+
+        if (Context.getEventForwarderManager() != null) {
+            for (EventForwarder eventForwarder : Context.getEventForwarderManager().getAllEventForwarders()) {
+                eventForwarder.forwardEventAsync(event, position, usersToForward);
+            }
         }
     }
 

@@ -76,6 +76,12 @@ public final class Keys {
             "extra.handlers", String.class);
 
     /**
+     * List of external event forwarder classes.
+     */
+    public static final ConfigKey EXTRA_EVENT_FORWARDERS = new ConfigKey(
+            "extra.event_forwarders", String.class);
+
+    /**
      * Enable positions forwarding to other web server.
      */
     public static final ConfigKey FORWARD_ENABLE = new ConfigKey(
