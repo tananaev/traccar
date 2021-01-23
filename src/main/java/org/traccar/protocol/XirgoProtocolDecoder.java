@@ -233,10 +233,21 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                     dateBuilder.setSecond(Integer.parseInt(time[2]));
                     break;
                 case "LT":
-                    position.setLatitude(Double.parseDouble(values[i]));
+                    if(values[i].contains(".")) {
+                        position.setLatitude(Double.parseDouble(values[i]));
+                    } else
+                    {
+                        position.setLatitude(Double.parseDouble(values[i]) / 1000000);
+                    }
                     break;
                 case "LN":
-                    position.setLongitude(Double.parseDouble(values[i]));
+                    if(values[i].contains(".")) {
+                        position.setLongitude(Double.parseDouble(values[i]));
+                    } else
+                    {
+                        position.setLongitude(Double.parseDouble(values[i]) / 1000000);
+                    }
+
                     break;
                 case "AL":
                     position.setAltitude(Integer.parseInt(values[i]));
