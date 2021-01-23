@@ -198,8 +198,8 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
     private Object decodeCustom(
             Channel channel, SocketAddress remoteAddress, String sentence) {
 
-        String[] keys = form.split(",");
-        String[] values = sentence.replace("$$", "").replace("##", "").split(",");
+        String[] keys = form.split("[,;]");
+        String[] values = sentence.replace("$$", "").replace("##", "").split("[,;]");
 
         if (values.length < keys.length) {
             return null;
@@ -247,7 +247,6 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                     {
                         position.setLongitude(Double.parseDouble(values[i]) / 1000000);
                     }
-
                     break;
                 case "AL":
                     position.setAltitude(Integer.parseInt(values[i]));
