@@ -242,8 +242,7 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                 case "LN":
                     if (values[i].contains(".")) {
                         position.setLongitude(Double.parseDouble(values[i]));
-                    } else
-                    {
+                    } else {
                         position.setLongitude(Double.parseDouble(values[i]) / 1000000);
                     }
                     break;
