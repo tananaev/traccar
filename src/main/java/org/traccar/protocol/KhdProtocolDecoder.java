@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2018 Anton Tananaev (anton@traccar.org)
+ * Copyright 2014 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.traccar.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
@@ -38,12 +39,18 @@ public class KhdProtocolDecoder extends BaseProtocolDecoder {
         super(protocol);
     }
 
-    private String readSerialNumber(ByteBuf buf) {
+    private String[] readIdentifiers(ByteBuf buf) {
+        String[] identifiers = new String[2];
+
+        identifiers[0] = ByteBufUtil.hexDump(buf, buf.readerIndex(), 4);
+
         int b1 = buf.readUnsignedByte();
         int b2 = buf.readUnsignedByte() - 0x80;
         int b3 = buf.readUnsignedByte() - 0x80;
         int b4 = buf.readUnsignedByte();
-        return String.format("%02d%02d%02d%02d", b1, b2, b3, b4);
+        identifiers[1] = String.format("%02d%02d%02d%02d", b1, b2, b3, b4);
+
+        return identifiers;
     }
 
     public static final int MSG_LOGIN = 0xB1;
@@ -93,7 +100,7 @@ public class KhdProtocolDecoder extends BaseProtocolDecoder {
 
             Position position = new Position(getProtocolName());
 
-            DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, readSerialNumber(buf));
+            DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, readIdentifiers(buf));
             if (deviceSession == null) {
                 return null;
             }
