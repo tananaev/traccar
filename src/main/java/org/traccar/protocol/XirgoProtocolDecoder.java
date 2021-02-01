@@ -236,14 +236,14 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                     if (values[i].contains(".")) {
                         position.setLatitude(Double.parseDouble(values[i]));
                     } else {
-                        position.setLatitude(Double.parseDouble(values[i]) / 1000000);
+                        position.setLatitude(Integer.parseInt(values[i]) * .000001);
                     }
                     break;
                 case "LN":
                     if (values[i].contains(".")) {
                         position.setLongitude(Double.parseDouble(values[i]));
                     } else {
-                        position.setLongitude(Double.parseDouble(values[i]) / 1000000);
+                        position.setLongitude(Integer.parseInt(values[i]) * .000001);
                     }
                     break;
                 case "AL":
@@ -382,5 +382,3 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
     }
 
 }
-
-
