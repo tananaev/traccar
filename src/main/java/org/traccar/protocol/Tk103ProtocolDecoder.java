@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2012 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class Tk103ProtocolDecoder extends BaseProtocolDecoder {
             .expression("([NS]),?")
             .number(" *(d+)(dd.d+)")             // longitude
             .expression("([EW]),?")
-            .number(" *(d+.d)(?:d*,)?")          // speed
+            .number("([ d.]{1,5})(?:d*,)?")      // speed
             .number("(dd)(dd)(dd),?")            // time (hhmmss)
             .groupBegin()
             .number("(?:([ d.]{6})|(dd)),?")     // course

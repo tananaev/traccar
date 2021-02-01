@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2012 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -719,9 +719,13 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
             int commandLength = buf.readUnsignedByte();
 
             if (commandLength > 0) {
-                buf.readUnsignedByte(); // server flag (reserved)
-                position.set(Position.KEY_RESULT,
-                        buf.readSlice(commandLength - 1).toString(StandardCharsets.US_ASCII));
+                buf.readUnsignedInt(); // server flag (reserved)
+                String data = buf.readSlice(commandLength - 4).toString(StandardCharsets.US_ASCII);
+                if (data.startsWith("<ICCID:")) {
+                    position.set(Position.KEY_ICCID, data.substring(7, 27));
+                } else {
+                    position.set(Position.KEY_RESULT, data);
+                }
             }
 
         } else if (type == MSG_BMS || type == MSG_BMS_2) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2018 Anton Tananaev (anton@traccar.org)
+ * Copyright 2012 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
             .or()
             .text("F,")
             .groupBegin()
-            .number("(dd)(dd)(dd).d+")           // time utc (hhmmss)
+            .number("(dd)(dd)(dd)(?:.d+)?")      // time utc (hhmmss)
             .or()
             .number("(?:d{1,5}.d+)?")
             .groupEnd()
