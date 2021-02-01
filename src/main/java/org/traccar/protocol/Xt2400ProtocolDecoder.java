@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 - 2020 Anton Tananaev (anton@traccar.org)
+ * Portions of OBD2 Copyright 2020 Adam Romberg (adam@powertogrow.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* README REGARDING OBD2 PIDS:
+    The Xirgo documentation allows for certain OBD2 variables to be read if you pay for more data.
+    Any variables that may be effected by this will reference this note.
+*/
+
 package org.traccar.protocol;
 
 import io.netty.buffer.ByteBuf;
@@ -71,6 +78,11 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
                 0x72, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x87,
                 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d
         };
+        int[] l5 = {
+                0x54, 0x55, 0x56, 0x5a
+
+        };
+
         for (int i : l1) {
             TAG_LENGTH_MAP.put(i, 1);
         }
@@ -79,6 +91,9 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
         }
         for (int i : l4) {
             TAG_LENGTH_MAP.put(i, 4);
+        }
+        for (int i : l5) {
+            TAG_LENGTH_MAP.put(i, 5);
         }
         TAG_LENGTH_MAP.put(0x95, 24);
         TAG_LENGTH_MAP.put(0xD0, 21);
@@ -132,55 +147,71 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
                     }
                     position.setDeviceId(deviceSession.getDeviceId());
                     break;
-                case 0x04:
+                case 0x04: // Reason Code (Old-school stuff)
                     position.set(Position.KEY_EVENT, buf.readUnsignedByte());
                     break;
-                case 0x05:
+                case 0x05: //Pkt Serial Number
                     position.set(Position.KEY_INDEX, buf.readUnsignedShort());
                     break;
-                case 0x06:
+                case 0x06: // UnixTime
                     position.setTime(new Date(buf.readUnsignedInt() * 1000));
                     break;
-                case 0x07:
+                case 0x07:  // Lat
                     position.setLatitude(buf.readInt() * 0.000001);
                     break;
-                case 0x08:
+                case 0x08: // Lon
                     position.setLongitude(buf.readInt() * 0.000001);
                     break;
-                case 0x09:
+                case 0x09: //Altitude
                     position.setAltitude(buf.readShort() * 0.1);
                     break;
-                case 0x0a:
+                case 0x0a: // Heading
                     position.setCourse(buf.readShort() * 0.1);
                     break;
-                case 0x0b:
+                case 0x0b: // Speed from GPS unit
                     position.setSpeed(UnitsConverter.knotsFromKph(buf.readUnsignedByte()));
                     break;
-                case 0x10:
+                case 0x10: // GPS Trip Odometer
                     position.set(Position.KEY_ODOMETER_TRIP, buf.readUnsignedInt());
                     break;
-                case 0x12:
+                case 0x12: // HDOP
                     position.set(Position.KEY_HDOP, buf.readUnsignedByte() * 0.1);
                     break;
-                case 0x13:
+                case 0x13: // Number of Sattalites
                     position.set(Position.KEY_SATELLITES, buf.readUnsignedByte());
                     break;
-                case 0x14:
+                case 0x14: // Cell Signal Strength
                     position.set(Position.KEY_RSSI, buf.readShort());
                     break;
-                case 0x16:
+                case 0x16: // Battery voltage of unit
                     position.set(Position.KEY_BATTERY, buf.readUnsignedByte() * 0.1);
                     break;
-                case 0x17:
+                case 0x17: // Battery voltage of car
                     position.set(Position.KEY_POWER, buf.readUnsignedByte() * 0.1);
                     break;
-                case 0x57:
-                    position.set(Position.KEY_OBD_SPEED, UnitsConverter.knotsFromKph(buf.readUnsignedShort()));
+                case 0x57: // OBD2 speed.
+                    position.set(Position.KEY_OBD_SPEED, UnitsConverter.knotsFromKph(buf.readUnsignedShort()*.1));
                     break;
-                case 0x65:
+                case 0x54: // OBD2 readout of ODM
+                    position.set(Position.KEY_OBD_ODOMETER, buf.readInt());
+                    break;
+                case 0x55: // OBD2 readout of Total Fuel Used
+                    position.set(Position.KEY_FUEL_USED, buf.readUnsignedInt());
+                    break;
+                case 0x56:  // OBD2 readout of Total Engine Hours
+                    position.set(Position.KEY_HOURS, buf.readUnsignedInt());
+                    break;
+                case 0x58: // OBD2 RPM
+                    position.set(Position.KEY_RPM, buf.readUnsignedInt());
+                    break;
+                case 0x5a: // Fuel Level Percent (MIGHT BE PROPRIATERY PID (see note on top of file)
+                    position.set(Position.KEY_FUEL_LEVEL, buf.readUnsignedInt());
+                    break;
+
+                case 0x65: // VIN of vehicle
                     position.set(Position.KEY_VIN, buf.readSlice(17).toString(StandardCharsets.US_ASCII));
                     break;
-                case 0x6C:
+                case 0x6C: // OBD2 failure reason
                     buf.readUnsignedByte(); // mil
                     int ecuCount = buf.readUnsignedByte();
                     for (int i = 0; i < ecuCount; i++) {
@@ -188,7 +219,7 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
                         buf.skipBytes(buf.readUnsignedByte() * 6);
                     }
                     break;
-                case 0x73:
+                case 0x73: // Firmware version
                     position.set(Position.KEY_VERSION_FW, buf.readSlice(16).toString(StandardCharsets.US_ASCII).trim());
                     break;
                 default:
