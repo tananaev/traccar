@@ -128,7 +128,7 @@ public class HuaShengProtocolDecoder extends BaseProtocolDecoder {
 
         } else if (type == MSG_UPFAULT) {
 
-            return decodeFaultCodes(channel, remoteAddress, buf);
+            return decodeFaultCodes(channel, remoteAddress, buf, index);
 
         } else if (type == MSG_POSITION) {
 
@@ -140,7 +140,7 @@ public class HuaShengProtocolDecoder extends BaseProtocolDecoder {
     }
 
     private Position decodeFaultCodes(
-            Channel channel, SocketAddress remoteAddress, ByteBuf buf) {
+            Channel channel, SocketAddress remoteAddress, ByteBuf buf, int index) {
 
         DeviceSession deviceSession = getDeviceSession(channel, remoteAddress);
         if (deviceSession == null) {
