@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2019 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,6 +185,17 @@ public class Minifinder2ProtocolDecoder extends BaseProtocolDecoder {
                         long status = buf.readUnsignedIntLE();
                         position.set(Position.KEY_BATTERY_LEVEL, BitUtil.from(status, 24));
                         position.set(Position.KEY_STATUS, status);
+                        break;
+                    case 0x28:
+                        int beaconFlags = buf.readUnsignedByte();
+                        position.set("tagId", ByteBufUtil.hexDump(buf.readSlice(6)));
+                        buf.readUnsignedByte(); // rssi
+                        buf.readUnsignedByte(); // 1m rssi
+                        if (BitUtil.check(beaconFlags, 7)) {
+                            position.setLatitude(buf.readIntLE() * 0.0000001);
+                            position.setLongitude(buf.readIntLE() * 0.0000001);
+                            hasLocation = true;
+                        }
                         break;
                     case 0x30:
                         buf.readUnsignedInt(); // timestamp

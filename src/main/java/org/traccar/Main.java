@@ -34,8 +34,6 @@ public final class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    private static final long CLEAN_PERIOD = 24 * 60 * 60 * 1000;
-
     private static Injector injector;
 
     public static Injector getInjector() {

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.traccar</groupId>
     <artifactId>traccar</artifactId>
-    <version>4.11-SNAPSHOT</version>
+    <version>4.12-SNAPSHOT</version>
 
     <name>traccar</name>
     <url>https://www.traccar.org</url>
@@ -12,10 +12,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <guice.version>4.2.3</guice.version>
-        <jetty.version>9.4.33.v20201020</jetty.version>
-        <jersey.version>2.32</jersey.version>
-        <jackson.version>2.10.1</jackson.version> <!-- same version as jersey-media-json-jackson dependency -->
-        <protobuf.version>3.13.0</protobuf.version>
+        <jetty.version>9.4.36.v20210114</jetty.version>
+        <jersey.version>2.33</jersey.version>
+        <jackson.version>2.12.1</jackson.version> <!-- same version as jersey-media-json-jackson dependency -->
+        <protobuf.version>3.14.0</protobuf.version>
     </properties>
 
     <dependencies>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.22</version>
+            <version>8.0.23</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -48,17 +48,17 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>8.4.1.jre8</version>
+            <version>9.2.0.jre8</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.53.Final</version>
+            <version>4.1.58.Final</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -189,12 +189,12 @@
         <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
-            <version>0.7</version>
+            <version>0.8</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.17.1</version>
+            <version>1.18.0</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
@@ -204,7 +204,7 @@
         <dependency>
             <groupId>com.github.jnr</groupId>
             <artifactId>jnr-posix</artifactId>
-            <version>3.1.2</version>
+            <version>3.1.4</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -247,6 +247,21 @@
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
             <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+            <version>2.12.1</version>
         </dependency>
 
     </dependencies>

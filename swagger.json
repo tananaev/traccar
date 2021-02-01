@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Traccar",
-    "version": "4.11",
+    "version": "4.12",
     "description": "Traccar GPS tracking server API documentation. To use the API you need to have a server instance. For testing purposes you can use one of free [demo servers](https://www.traccar.org/demo-server/). For production use you can install your own server or get a [subscription service](https://www.traccar.org/product/tracking-server/).",
     "contact": {
       "name": "Traccar Support",
