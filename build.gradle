@@ -1,0 +1,100 @@
+plugins {
+    id "java"
+    id "checkstyle"
+    id "com.google.protobuf" version "0.8.12"
+    id "application"
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    guiceVersion = "4.2.3"
+    jettyVersion = "9.4.36.v20210114" // jetty 10 requires java 11, jetty 11 javax to jakarta
+    jerseyVersion = "2.33" // jersey 3 javax to jakarta
+    jacksonVersion = "2.12.1" // same version as jersey-media-json-jackson dependency
+    protobufVersion = "3.14.0"
+}
+
+sourceCompatibility = "1.8"
+compileJava.options.encoding = "UTF-8"
+mainClassName = "org.traccar.Main"
+
+checkstyle {
+    toolVersion = "8.26"
+    configFile = "gradle/checkstyle.xml" as File
+    checkstyleTest.enabled = false
+}
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src"
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+}
+
+dependencies {
+    implementation "commons-codec:commons-codec:1.15"
+    implementation "com.h2database:h2:1.4.200"
+    implementation "mysql:mysql-connector-java:8.0.21" // verify a bug fix
+    implementation "org.postgresql:postgresql:42.2.18"
+    implementation "com.microsoft.sqlserver:mssql-jdbc:9.2.0.jre8"
+    implementation "com.zaxxer:HikariCP:4.0.1"
+    implementation "io.netty:netty-all:4.1.58.Final"
+    implementation "org.slf4j:slf4j-jdk14:1.7.30"
+    implementation "com.google.inject:guice:$guiceVersion"
+    implementation "com.google.inject.extensions:guice-assistedinject:$guiceVersion"
+    implementation "org.owasp.encoder:encoder:1.2.3"
+    implementation "org.glassfish:javax.json:1.1.4"
+    implementation "org.eclipse.jetty:jetty-server:$jettyVersion"
+    implementation "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+    implementation "org.eclipse.jetty:jetty-webapp:$jettyVersion"
+    implementation "org.eclipse.jetty:jetty-jndi:$jettyVersion"
+    implementation "org.eclipse.jetty:jetty-proxy:$jettyVersion"
+    implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVersion" // websocket-jetty-server from jetty 10
+    implementation "org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
+    implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jacksonVersion"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:$jacksonVersion"
+    implementation "org.liquibase:liquibase-core:3.10.3", { // needs upgrade
+        exclude group: "ch.qos.logback", module: "logback-classic"
+    }
+    implementation "com.sun.mail:javax.mail:1.6.2"
+    implementation "org.jxls:jxls:2.4.7" // needs upgrade
+    implementation "org.jxls:jxls-poi:1.0.16" // needs upgrade
+    implementation "org.apache.velocity:velocity:1.7"
+    implementation "org.apache.velocity:velocity-tools:2.0"
+    implementation "org.apache.commons:commons-collections4:4.4"
+    implementation "org.mnode.ical4j:ical4j:2.0.5" // needs upgrade
+    implementation "org.locationtech.spatial4j:spatial4j:0.8"
+    implementation "org.locationtech.jts:jts-core:1.18.0"
+    implementation "net.java.dev.jna:jna-platform:5.6.0"
+    implementation "com.github.jnr:jnr-posix:3.1.4"
+    implementation "com.google.protobuf:protobuf-java:$protobufVersion"
+    implementation "javax.xml.bind:jaxb-api:2.3.1"
+    implementation "com.sun.xml.bind:jaxb-core:2.3.0.1"
+    implementation "com.sun.xml.bind:jaxb-impl:2.3.3"
+    implementation "javax.activation:activation:1.1.1"
+    testImplementation "junit:junit:4.13.1"
+}
+
+task copyDependencies(type: Copy) {
+    into "$projectDir/target/lib"
+    from configurations.runtimeClasspath
+}
+task copyBinary(type: Copy) {
+    into "$projectDir/target"
+    from jar
+}
+assemble.dependsOn(copyBinary, copyDependencies)
+
+jar {
+    manifest {
+        attributes(
+                "Main-Class": "org.traccar.Main",
+                "Implementation-Version": "4.12",
+                "Class-Path": configurations.runtimeClasspath.files.collect { "lib/$it.name" }.join(" "))
+    }
+}
