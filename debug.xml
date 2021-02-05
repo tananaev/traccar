@@ -19,8 +19,16 @@
     <entry key='database.url'>jdbc:h2:./target/database</entry>
     <entry key='database.user'>sa</entry>
     <entry key='database.password'></entry>
-
+    <entry key='xirgo.newFormat'>true</entry>
     <entry key='atrack.custom'>true</entry>
     <entry key='intellitrac.port'>6037</entry>
+    <entry key='xirgo.form'>UID,EV,D;T,LT,LN,AL,GSPT,SV,HP,BV,CQ,MI,GS,SI,IG,OT</entry>
+    <entry key='xt2400.config'>
+        :wycfg pcr[0] 000801030708090a0b2c
+        :wycfg pcr[11] 0b06010354555665
+        :wycfg pcr[12] 0c0a0103045758595a797dc7
+        :wycfg pcr[13] 0d0b0103047a7b818283848586
+        :wycfg pcr[14] 0e050103046b6c
+    </entry>
 
 </properties>

@@ -212,7 +212,7 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Position.KEY_RPM, buf.readUnsignedShort());
                     break;
                 case 0x5a: // Fuel Level Percent (MIGHT BE PROPRIATERY PID (see note on top of file)
-                    position.set(Position.KEY_FUEL_LEVEL, buf.readUnsignedShort() * .1);
+                    position.set(Position.KEY_FUEL_LEVEL_PCT, buf.readUnsignedShort() * .1);
                     break;
                 case 0x65: // VIN of vehicle
                     position.set(Position.KEY_VIN, buf.readSlice(17).toString(StandardCharsets.US_ASCII));
@@ -229,6 +229,9 @@ public class Xt2400ProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Position.KEY_VERSION_FW, buf.readSlice(16).toString(StandardCharsets.US_ASCII).trim());
                     break;
                 default:
+                    String str = Integer.toHexString(tag);
+                    System.out.println("Ignored tag: 0x" + str);
+                    System.out.println("Skipped bytes" + getTagLength(tag));
                     buf.skipBytes(getTagLength(tag));
                     break;
             }
