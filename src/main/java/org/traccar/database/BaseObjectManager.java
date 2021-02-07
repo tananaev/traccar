@@ -174,5 +174,4 @@ public class BaseObjectManager<T extends BaseModel> {
             readUnlock();
         }
     }
-
 }

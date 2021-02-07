@@ -30,6 +30,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -44,6 +45,28 @@ public class UserResource extends BaseObjectResource<User> {
 
     public UserResource() {
         super(User.class);
+    }
+
+    @GET
+    @Path("{id}")
+    public User getById(@PathParam("id") long id) {
+        UsersManager usersManager = Context.getUsersManager();
+        User user = null;
+
+        if (Context.getPermissionsManager().getUserAdmin(getUserId())) {
+            user = usersManager.getById(id);
+        }
+
+        if (Context.getPermissionsManager().getUserManager(getUserId())) {
+            Context.getPermissionsManager().checkManager(getUserId(), id);
+            user = usersManager.getById(id);
+        }
+
+        if(id == getUserId()) {
+            user = usersManager.getById(id);
+        }
+
+        return user;
     }
 
     @GET
