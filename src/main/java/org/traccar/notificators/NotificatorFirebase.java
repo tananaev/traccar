@@ -39,6 +39,8 @@ public class NotificatorFirebase extends Notificator {
     public static class Notification {
         @JsonProperty("body")
         private String body;
+        @JsonProperty("sound")
+        private String sound;
     }
 
     public static class Message {
@@ -66,6 +68,7 @@ public class NotificatorFirebase extends Notificator {
 
             Notification notification = new Notification();
             notification.body = NotificationFormatter.formatShortMessage(userId, event, position).trim();
+            notification.sound = "default";
 
             Message message = new Message();
             message.tokens = user.getString("notificationTokens").split("[, ]");
