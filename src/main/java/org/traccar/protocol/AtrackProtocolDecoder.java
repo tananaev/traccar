@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2013 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.traccar.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
@@ -24,6 +25,8 @@ import org.traccar.DeviceSession;
 import org.traccar.NetworkMessage;
 import org.traccar.Protocol;
 import org.traccar.config.Keys;
+import org.traccar.helper.BitUtil;
+import org.traccar.helper.DataConverter;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
@@ -113,6 +116,89 @@ public class AtrackProtocolDecoder extends BaseProtocolDecoder {
         }
         buf.readByte();
         return result;
+    }
+
+    private void decodeBeaconData(Position position, int mode, int mask, ByteBuf data) {
+        int i = 1;
+        while (data.isReadable()) {
+            if (BitUtil.check(mask, 7)) {
+                position.set("tag" + i + "Id", ByteBufUtil.hexDump(data.readSlice(6)));
+            }
+            switch (mode) {
+                case 1:
+                    if (BitUtil.check(mask, 6)) {
+                        data.readUnsignedShort(); // major
+                    }
+                    if (BitUtil.check(mask, 5)) {
+                        data.readUnsignedShort(); // minor
+                    }
+                    if (BitUtil.check(mask, 4)) {
+                        data.readUnsignedByte(); // tx power
+                    }
+                    if (BitUtil.check(mask, 3)) {
+                        position.set("tag" + i + "Rssi", data.readUnsignedByte());
+                    }
+                    break;
+                case 2:
+                    if (BitUtil.check(mask, 6)) {
+                        data.readUnsignedShort(); // battery voltage
+                    }
+                    if (BitUtil.check(mask, 5)) {
+                        position.set("tag" + i + "Temp", data.readUnsignedShort());
+                    }
+                    if (BitUtil.check(mask, 4)) {
+                        data.readUnsignedByte(); // tx power
+                    }
+                    if (BitUtil.check(mask, 3)) {
+                        position.set("tag" + i + "Rssi", data.readUnsignedByte());
+                    }
+                    break;
+                case 3:
+                    if (BitUtil.check(mask, 6)) {
+                        position.set("tag" + i + "Humidity", data.readUnsignedShort());
+                    }
+                    if (BitUtil.check(mask, 5)) {
+                        position.set("tag" + i + "Temp", data.readUnsignedShort());
+                    }
+                    if (BitUtil.check(mask, 3)) {
+                        position.set("tag" + i + "Rssi", data.readUnsignedByte());
+                    }
+                    if (BitUtil.check(mask, 2)) {
+                        data.readUnsignedShort();
+                    }
+                    break;
+                case 4:
+                    if (BitUtil.check(mask, 6)) {
+                        int hardwareId = data.readUnsignedByte();
+                        if (BitUtil.check(mask, 5)) {
+                            switch (hardwareId) {
+                                case 1:
+                                case 4:
+                                    data.skipBytes(11); // fuel
+                                    break;
+                                case 2:
+                                    data.skipBytes(2); // temperature
+                                    break;
+                                case 3:
+                                    data.skipBytes(6); // temperature and luminosity
+                                    break;
+                                case 5:
+                                    data.skipBytes(10); // temperature, humidity, luminosity and pressure
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    if (BitUtil.check(mask, 4)) {
+                        data.skipBytes(9); // name
+                    }
+                    break;
+                default:
+                    break;
+            }
+            i += 1;
+        }
     }
 
     private void readTextCustomData(Position position, String data, String form) {
@@ -207,6 +293,12 @@ public class AtrackProtocolDecoder extends BaseProtocolDecoder {
                     break;
                 case "MT":
                     position.set(Position.KEY_MOTION, Integer.parseInt(values[i]) > 0);
+                    break;
+                case "BC":
+                    String[] beaconValues = values[i].split(":");
+                    decodeBeaconData(
+                            position, Integer.parseInt(beaconValues[0]), Integer.parseInt(beaconValues[1]),
+                            Unpooled.wrappedBuffer(DataConverter.parseHex(beaconValues[2])));
                     break;
                 default:
                     break;

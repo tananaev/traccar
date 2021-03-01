@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2019 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.traccar.DeviceSession;
 import org.traccar.NetworkMessage;
 import org.traccar.Protocol;
 import org.traccar.helper.BcdUtil;
+import org.traccar.helper.BitUtil;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CellTower;
@@ -150,6 +151,21 @@ public class TopinProtocolDecoder extends BaseProtocolDecoder {
             ByteBuf time = buf.slice(buf.readerIndex(), 6);
 
             Gt06ProtocolDecoder.decodeGps(position, buf, false, TimeZone.getTimeZone("UTC"));
+
+            if (buf.readableBytes() >= 5) {
+                position.setAltitude(buf.readShort());
+
+                int alarms = buf.readUnsignedByte();
+                if (BitUtil.check(alarms, 0)) {
+                    position.set(Position.KEY_ALARM, Position.ALARM_VIBRATION);
+                }
+                if (BitUtil.check(alarms, 1)) {
+                    position.set(Position.KEY_ALARM, Position.ALARM_OVERSPEED);
+                }
+                if (BitUtil.check(alarms, 4)) {
+                    position.set(Position.KEY_ALARM, Position.ALARM_LOW_POWER);
+                }
+            }
 
             ByteBuf content = Unpooled.buffer();
             content.writeBytes(time);

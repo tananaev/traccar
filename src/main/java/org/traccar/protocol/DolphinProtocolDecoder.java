@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2020 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@ package org.traccar.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.DeviceSession;
+import org.traccar.NetworkMessage;
 import org.traccar.Protocol;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Position;
@@ -60,6 +62,14 @@ public class DolphinProtocolDecoder extends BaseProtocolDecoder {
 
             DolphinMessages.DataPackRequest message = DolphinMessages.DataPackRequest.parseFrom(
                     ByteBufUtil.getBytes(buf, buf.readerIndex(), length, false));
+
+            if (channel != null) {
+                DolphinMessages.DataPackResponse response = DolphinMessages.DataPackResponse.newBuilder()
+                        .setResponse(DolphinMessages.DataPackResponseCode.DataPack_OK)
+                        .build();
+                channel.writeAndFlush(new NetworkMessage(
+                        Unpooled.wrappedBuffer(response.toByteArray()), remoteAddress));
+            }
 
             List<Position> positions = new LinkedList<>();
 

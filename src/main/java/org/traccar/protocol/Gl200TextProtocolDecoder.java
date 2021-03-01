@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Anton Tananaev (anton@traccar.org)
+ * Copyright 2012 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,8 +237,14 @@ public class Gl200TextProtocolDecoder extends BaseProtocolDecoder {
             .number("(d{5}:dd:dd)?,")            // hour meter
             .number("(x+)?,")                    // adc 1
             .number("(x+)?,").optional()         // adc 2
+            .groupBegin()
+            .number("(x+)?,")                    // adc 3
+            .number("(xx),")                     // inputs
+            .number("(xx),")                     // outputs
+            .or()
             .number("(d{1,3})?,")                // battery
             .number("(?:(xx)(xx)(xx))?,")        // device status
+            .groupEnd()
             .expression("(.*)")                  // additional data
             .or()
             .number("d*,,")
@@ -920,15 +926,21 @@ public class Gl200TextProtocolDecoder extends BaseProtocolDecoder {
             position.set(Position.KEY_POWER, power * 0.001);
         }
 
-        if (parser.hasNext(9)) {
+        if (parser.hasNext(12)) {
 
             position.set(Position.KEY_ODOMETER, parser.nextDouble() * 1000);
             position.set(Position.KEY_HOURS, parseHours(parser.next()));
             position.set(Position.PREFIX_ADC + 1, parser.next());
             position.set(Position.PREFIX_ADC + 2, parser.next());
-            position.set(Position.KEY_BATTERY_LEVEL, parser.nextInt());
-
-            decodeStatus(position, parser);
+            position.set(Position.PREFIX_ADC + 3, parser.next());
+            if (parser.hasNext(2)) {
+                position.set(Position.KEY_INPUT, parser.nextHexInt());
+                position.set(Position.KEY_OUTPUT, parser.nextHexInt());
+            }
+            if (parser.hasNext(4)) {
+                position.set(Position.KEY_BATTERY_LEVEL, parser.nextInt());
+                decodeStatus(position, parser);
+            }
 
             int index = 0;
             String[] data = parser.next().split(",");

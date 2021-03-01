@@ -125,11 +125,15 @@ public class KhdProtocolDecoder extends BaseProtocolDecoder {
 
                 position.set(Position.KEY_ODOMETER, buf.readUnsignedMedium());
                 position.set(Position.KEY_STATUS, buf.readUnsignedInt());
-                position.set(Position.KEY_HDOP, buf.readUnsignedByte());
-                position.set(Position.KEY_VDOP, buf.readUnsignedByte());
-                position.set(Position.KEY_SATELLITES, buf.readUnsignedByte());
 
-                buf.skipBytes(5); // other location data
+                buf.readUnsignedShort();
+                buf.readUnsignedByte();
+                buf.readUnsignedByte();
+                buf.readUnsignedByte();
+                buf.readUnsignedByte();
+                buf.readUnsignedByte();
+
+                position.set(Position.KEY_RESULT, buf.readUnsignedByte());
 
                 if (type == MSG_PERIPHERAL) {
 

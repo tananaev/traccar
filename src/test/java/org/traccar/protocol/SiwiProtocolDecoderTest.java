@@ -11,6 +11,15 @@ public class SiwiProtocolDecoderTest extends ProtocolTest {
         SiwiProtocolDecoder decoder = new SiwiProtocolDecoder(null);
 
         verifyPosition(decoder, text(
+                "$SIWI,868957040831465,44,E,,,1,1,1,16.79,0,0,5,A,17.204447,78.355087,534,44,140955,180221,11,1,15,5,4322,0,0,0,0,0,0,1.0,1.6CPTASF_6.60,0!"));
+
+        verifyPosition(decoder, text(
+                "$SIWI,868957040777510,13,E,,,0,1,1,24.15,1118097,0,18,A,16.080666,80.331451,0,29,142451,180221,24,1,15,5,4282,2269,0,0,0,0,0,1.0,1.6CPASF_6.60,0!"));
+
+        verifyPosition(decoder, text(
+                "$RTPL,1234567890123,45,E,,89917650642221590319,0,1,0,12.36,141313,0,9,A,21.981985,85.221165,804,280,105113,220420,17,1,13,5,4071,1,0,8,0,0,0,1.0,1.2CPLUS_6.52,0!"));
+
+        verifyPosition(decoder, text(
                 "$SIWI,9803932,23992,E,0,,0,1,1,0,5055,0,5,A,22.289887,70.807192,152,168,102922,090317,28,1,12,5,4098,1,0,13,0,0,0,1.0,3.1CHKS_4.82,0!"));
 
         verifyPosition(decoder, text(

@@ -36,6 +36,7 @@ public class Command extends Message implements Cloneable {
     public static final String TYPE_REQUEST_PHOTO = "requestPhoto";
     public static final String TYPE_POWER_OFF = "powerOff";
     public static final String TYPE_REBOOT_DEVICE = "rebootDevice";
+    public static final String TYPE_FACTORY_RESET = "factoryReset";
     public static final String TYPE_SEND_SMS = "sendSms";
     public static final String TYPE_SEND_USSD = "sendUssd";
     public static final String TYPE_SOS_NUMBER = "sosNumber";
@@ -54,6 +55,7 @@ public class Command extends Message implements Cloneable {
     public static final String TYPE_SET_ODOMETER = "setOdometer";
     public static final String TYPE_GET_MODEM_STATUS = "getModemStatus";
     public static final String TYPE_GET_DEVICE_STATUS = "getDeviceStatus";
+    public static final String TYPE_SET_SPEED_LIMIT = "setSpeedLimit";
 
     public static final String TYPE_MODE_POWER_SAVING = "modePowerSaving";
     public static final String TYPE_MODE_DEEP_SLEEP = "modeDeepSleep";

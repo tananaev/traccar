@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2018 Anton Tananaev (anton@traccar.org)
+ * Copyright 2017 - 2021 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@ public class SiwiProtocolDecoder extends BaseProtocolDecoder {
             .number("(d+),")                     // device id
             .number("d+,")                       // unit no
             .expression("([A-Z]),")              // reason
-            .number("d+,")                       // command code
+            .number("d*,")                       // command code
             .number("[^,]*,")                    // command value
             .expression("([01]),")               // ignition
             .expression("[01],")                 // power cut
-            .expression("[01],")                 // box open
-            .number("d+,")                       // message key
+            .number("d+,")                       // flags
+            .number("[^,]+,")
             .number("(d+),")                     // odometer
             .number("(d+),")                     // speed
             .number("(d+),")                     // satellites
@@ -54,6 +54,19 @@ public class SiwiProtocolDecoder extends BaseProtocolDecoder {
             .number("(d+),")                     // course
             .number("(dd)(dd)(dd),")             // time (hhmmss)
             .number("(dd)(dd)(dd),")             // date (ddmmyy)
+            .number("d+,")                       // signal strength
+            .number("d+,")                       // gsm status
+            .number("d+,")                       // error code
+            .number("d+,")                       // internal status
+            .number("(d+),")                     // battery
+            .number("(d+),")                     // adc
+            .number("(d+),")                     // digital inputs
+            .number("(d+),")                     // sensor 1
+            .number("(d+),")                     // sensor 2
+            .number("(d+),")                     // sensor 3
+            .number("(d+),")                     // sensor 4
+            .expression("([^,]+),")              // hw version
+            .expression("([^,]+),")              // sw version
             .any()
             .compile();
 
@@ -89,6 +102,20 @@ public class SiwiProtocolDecoder extends BaseProtocolDecoder {
         position.setCourse(parser.nextInt(0));
 
         position.setTime(parser.nextDateTime(Parser.DateTimeFormat.HMS_DMY, "IST"));
+
+        position.set(Position.KEY_BATTERY, parser.nextInt() * 0.001);
+        position.set(Position.PREFIX_ADC + 1, parser.nextInt() * 0.01);
+        position.set(Position.KEY_INPUT, parser.nextInt());
+
+        for (int i = 1; i <= 4; i++) {
+            int value = parser.nextInt();
+            if (value != 0) {
+                position.set(Position.PREFIX_IO + i, value);
+            }
+        }
+
+        position.set(Position.KEY_VERSION_HW, parser.next());
+        position.set(Position.KEY_VERSION_FW, parser.next());
 
         return position;
     }
