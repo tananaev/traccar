@@ -24,6 +24,8 @@ public class H02FrameDecoder extends BaseFrameDecoder {
 
     private static final int MESSAGE_SHORT = 32;
     private static final int MESSAGE_LONG = 45;
+    private static final int LBS_DATASET_LENGTH = 8;
+    private static final int WIFI_DATASET_LENGTH = 7;
 
     private int messageLength;
 
@@ -68,6 +70,23 @@ public class H02FrameDecoder extends BaseFrameDecoder {
                     } else {
                         messageLength = MESSAGE_SHORT;
                     }
+                } else {
+                    // messagelength = 37 in config (for GPS data)
+                    if (buf.capacity() > messageLength) {
+                		byte dataFormat = buf.getByte(messageLength - 7);
+                        
+                		if (dataFormat > 0x00) {
+                            byte count = buf.getByte(messageLength - 6);
+                			// LBS Data
+                			if (dataFormat == 0x01) {
+                				messageLength = MESSAGE_SHORT + count * LBS_DATASET_LENGTH + 1;
+                			}
+                			// Wifi Data
+                			else if (dataFormat == 0x02) {
+                				messageLength = MESSAGE_SHORT + count * WIFI_DATASET_LENGTH + 1;
+                			}
+                		}
+                	}
                 }
 
                 if (buf.readableBytes() >= messageLength) {
