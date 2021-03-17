@@ -20,8 +20,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.traccar.database.QueryExtended;
 import org.traccar.database.QueryIgnore;
 import org.traccar.helper.Hashing;
+import org.traccar.Context;
 
 import java.util.Date;
+
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorException;
 
 public class User extends ExtendedModel {
 
@@ -273,4 +277,64 @@ public class User extends ExtendedModel {
         return Hashing.validatePassword(password, hashedPassword, salt);
     }
 
+    private String totpKey;
+    private boolean useTotp;
+
+    public void setTotpKey(String key) {
+        if (key.isEmpty()) {
+            this.totpKey = null;
+            this.totpKey = this.getTotpKey();
+            return;
+        }
+        this.totpKey = key;
+    }
+
+    public String getTotpKey() {
+        if (this.totpKey == null) {
+            GoogleAuthenticator authenticator = new GoogleAuthenticator();
+            this.setTotpKey(authenticator.createCredentials().getKey());
+        }
+        return this.totpKey;
+    }
+
+    public void setUseTotp(boolean doUse) {
+        this.useTotp = doUse;
+    }
+
+    public boolean getUseTotp() {
+        if (!Context.getConfig().getBoolean("totp.enabled")) {
+            return false;
+        }
+        return this.useTotp;
+    }
+
+    @JsonIgnore
+    @QueryIgnore
+    public boolean isTotpAuthCodeValid(String code) {
+        if (!Context.getConfig().getBoolean("totp.enabled")) {
+            return true;
+        }
+
+        GoogleAuthenticator authenticator = new GoogleAuthenticator();
+        if (!Context.getConfig().getBoolean("totp.enforce")) {
+            if (!this.useTotp) {
+                return true;
+            }
+        }
+
+        int numericCode;
+        try {
+            numericCode = Integer.parseInt(code);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        Boolean result = false;
+        try {
+            result = authenticator.authorize(getTotpKey(), numericCode);
+        } catch (GoogleAuthenticatorException e) {
+            result = false;
+        }
+        return result;
+    }
 }

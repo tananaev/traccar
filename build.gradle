@@ -77,6 +77,7 @@ dependencies {
     implementation "com.sun.xml.bind:jaxb-core:2.3.0.1"
     implementation "com.sun.xml.bind:jaxb-impl:2.3.3"
     implementation "javax.activation:activation:1.1.1"
+    implementation 'com.warrenstrange:googleauth:1.1.2'
     testImplementation "junit:junit:4.13.1"
 }
 

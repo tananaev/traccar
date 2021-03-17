@@ -1155,7 +1155,18 @@ public final class Keys {
             Collections.singletonList(KeyType.GLOBAL));
 
     /**
-     * Sets SameSite cookie attribute value.
+     * Enable TOTP.
+     */
+    public static final ConfigKey TOTP_ENABLED = new ConfigKey(
+            "totp.enabled", Boolean.class);
+
+    /**
+     * Enforce TOTP. When false local authentication still works without TOTP when true user always need to use TOTP.
+     */
+    public static final ConfigKey TOTP_ENFORCE = new ConfigKey(
+            "totp.enforce", Boolean.class);
+
+    /** Sets SameSite cookie attribute value.
      * Supported options: Lax, Strict, None.
      */
     public static final ConfigKey<String> WEB_SAME_SITE_COOKIE = new ConfigKey<>(

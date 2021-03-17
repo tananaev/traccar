@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+  logicalFilePath="changelog-4.4">
+
+  <changeSet author="author" id="changelog-4.4-all">
+    <addColumn tableName="tc_users">
+        <column name="totpKey" type="varchar(128)"/>
+    </addColumn>
+    <addColumn tableName="tc_users">
+        <column name="useTotp" type="BOOLEAN" defaultValueBoolean="false"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

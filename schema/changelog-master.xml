@@ -23,6 +23,7 @@
   <include file="changelog-4.0.xml" relativeToChangelogFile="true" />
 
   <include file="changelog-4.1.xml" relativeToChangelogFile="true" />
+  <include file="changelog-4.4.xml" relativeToChangelogFile="true" />
   <include file="changelog-4.7.xml" relativeToChangelogFile="true" />
   <include file="changelog-4.9.xml" relativeToChangelogFile="true" />
   <include file="changelog-4.10.xml" relativeToChangelogFile="true" />

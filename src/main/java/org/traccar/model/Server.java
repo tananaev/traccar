@@ -18,6 +18,8 @@ package org.traccar.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.traccar.Context;
 import org.traccar.database.QueryIgnore;
+import org.traccar.Context;
+import org.traccar.config.Keys;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Server extends ExtendedModel {
@@ -160,6 +162,16 @@ public class Server extends ExtendedModel {
 
     public void setPoiLayer(String poiLayer) {
         this.poiLayer = poiLayer;
+    }
+
+    @QueryIgnore
+    public boolean getTotpEnabled() {
+        return Context.getConfig().getBoolean(Keys.TOTP_ENABLED);
+    }
+
+    @QueryIgnore
+    public boolean getTotpEnforce() {
+        return Context.getConfig().getBoolean(Keys.TOTP_ENFORCE);
     }
 
     private String announcement;
