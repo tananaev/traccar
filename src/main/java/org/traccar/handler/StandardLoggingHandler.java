@@ -26,15 +26,24 @@ import org.traccar.NetworkMessage;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StandardLoggingHandler extends ChannelDuplexHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandardLoggingHandler.class);
 
-    private final String protocol;
+    public enum NetworkLogFormat {
+        HexOnly, RawAndHex, RawOrHex
+    }
 
-    public StandardLoggingHandler(String protocol) {
-        this.protocol = protocol;
+    private static final Pattern NON_ASCII_PATTERN = Pattern.compile("[^\\p{ASCII}].*", Pattern.DOTALL);
+
+    private NetworkLogFormat networkLogFormat;
+
+    public StandardLoggingHandler(NetworkLogFormat networkLogFormat) {
+        this.networkLogFormat = networkLogFormat;
     }
 
     @Override
@@ -63,8 +72,8 @@ public class StandardLoggingHandler extends ChannelDuplexHandler {
     public void log(ChannelHandlerContext ctx, boolean downstream, SocketAddress remoteAddress, ByteBuf buf) {
         StringBuilder message = new StringBuilder();
 
-        message.append("[").append(ctx.channel().id().asShortText()).append(": ");
-        message.append(protocol);
+        message.append('[').append(ctx.channel().id().asShortText()).append(": ");
+        message.append(((InetSocketAddress) ctx.channel().localAddress()).getPort());
         if (downstream) {
             message.append(" > ");
         } else {
@@ -76,10 +85,29 @@ public class StandardLoggingHandler extends ChannelDuplexHandler {
         } else {
             message.append("unknown");
         }
-        message.append("]");
+        message.append(']');
 
-        message.append(" HEX: ");
-        message.append(ByteBufUtil.hexDump(buf));
+        boolean logRaw = networkLogFormat != NetworkLogFormat.HexOnly;
+        boolean logHex = true;
+        String rawMessage = null;
+        if (logRaw) {
+            rawMessage = buf.toString(StandardCharsets.UTF_8);
+            Matcher matcher = NON_ASCII_PATTERN.matcher(rawMessage);
+            if (matcher.find()) {
+                rawMessage = matcher.replaceFirst("<binary...>");
+            } else {
+                logHex = networkLogFormat != NetworkLogFormat.RawOrHex;
+            }
+        }
+        if (logRaw) {
+            message.append(' ');
+            message.append(rawMessage);
+        }
+        if (logHex) {
+            String hexMessage = ByteBufUtil.hexDump(buf);
+            message.append(" HEX: ");
+            message.append(hexMessage);
+        }
 
         LOGGER.info(message.toString());
     }

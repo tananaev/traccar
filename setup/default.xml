@@ -19,6 +19,8 @@
     <entry key='logger.level'>info</entry>
     <entry key='logger.file'>./logs/tracker-server.log</entry>
     <entry key='logger.rotate'>true</entry>
+    <entry key='logger.events'>time,position,speed,course,accuracy,result</entry>
+    <entry key='logger.networkLogFormat'>RawOrHex</entry>
 
     <entry key='filter.enable'>true</entry>
     <entry key='filter.future'>86400</entry>
