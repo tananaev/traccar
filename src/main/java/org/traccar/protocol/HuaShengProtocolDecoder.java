@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2021 Anton Tananaev (anton@traccar.org)
+ * Copyright 2016 - 2020 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public class HuaShengProtocolDecoder extends BaseProtocolDecoder {
 
         } else if (type == MSG_UPFAULT) {
 
-            return decodeFaultCodes(channel, remoteAddress, buf);
+            return decodeFaultCodes(channel, remoteAddress, buf, index);
 
         } else if (type == MSG_POSITION) {
 
@@ -140,7 +140,7 @@ public class HuaShengProtocolDecoder extends BaseProtocolDecoder {
     }
 
     private Position decodeFaultCodes(
-            Channel channel, SocketAddress remoteAddress, ByteBuf buf) {
+            Channel channel, SocketAddress remoteAddress, ByteBuf buf, int index) {
 
         DeviceSession deviceSession = getDeviceSession(channel, remoteAddress);
         if (deviceSession == null) {
@@ -234,14 +234,8 @@ public class HuaShengProtocolDecoder extends BaseProtocolDecoder {
             int length = buf.readUnsignedShort() - 4;
             switch (subtype) {
                 case 0x0001:
-                    int coolantTemperature = buf.readUnsignedByte() - 40;
-                    if (coolantTemperature <= 215) {
-                        position.set(Position.KEY_COOLANT_TEMP, coolantTemperature);
-                    }
-                    int rpm = buf.readUnsignedShort();
-                    if (rpm <= 65535) {
-                        position.set(Position.KEY_RPM, rpm);
-                    }
+                    position.set(Position.KEY_COOLANT_TEMP, buf.readUnsignedByte() - 40);
+                    position.set(Position.KEY_RPM, buf.readUnsignedShort());
                     position.set("averageSpeed", buf.readUnsignedByte());
                     buf.readUnsignedShort(); // interval fuel consumption
                     position.set(Position.KEY_FUEL_CONSUMPTION, buf.readUnsignedShort() * 0.01);

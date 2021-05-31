@@ -26,6 +26,11 @@ public class XirgoProtocolDecoderTest extends ProtocolTest {
         verifyPosition(decoder, text(
                 "$$184800793,4002,03/15/2019,21:30:21,46.848582,-114.022237,9733,0.0,18,1.1,13.605,20,0,3,89011703278246523602,2,0##"));
 
+        /* 2169X, vehicle off and parked. */
+        decoder.setForm("UID,EV,D;T,LT,LN,AL,GSPT,HD,SV,HP,BV,CQ,MI,GS,GT,AC,DC,IN2S,IG");
+
+        verifyPosition(decoder, text(
+                "$$184801398,4006,01/26/2021;20:38:41,44262439,-88508944,265,0,1327,14,15,12461,12,31952,3,0,0,0,0,2,235##"));
     }
 
     @Test

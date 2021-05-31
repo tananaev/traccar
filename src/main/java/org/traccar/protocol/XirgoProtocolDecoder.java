@@ -198,8 +198,8 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
     private Object decodeCustom(
             Channel channel, SocketAddress remoteAddress, String sentence) {
 
-        String[] keys = form.split(",");
-        String[] values = sentence.replace("$$", "").replace("##", "").split(",");
+        String[] keys = form.split("[,;]");
+        String[] values = sentence.replace("$$", "").replace("##", "").split("[,;]");
 
         if (values.length < keys.length) {
             return null;
@@ -233,10 +233,18 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                     dateBuilder.setSecond(Integer.parseInt(time[2]));
                     break;
                 case "LT":
-                    position.setLatitude(Double.parseDouble(values[i]));
+                    if (values[i].contains(".")) {
+                        position.setLatitude(Double.parseDouble(values[i]));
+                    } else {
+                        position.setLatitude(Integer.parseInt(values[i]) * .000001);
+                    }
                     break;
                 case "LN":
-                    position.setLongitude(Double.parseDouble(values[i]));
+                    if (values[i].contains(".")) {
+                        position.setLongitude(Double.parseDouble(values[i]));
+                    } else {
+                        position.setLongitude(Integer.parseInt(values[i]) * .000001);
+                    }
                     break;
                 case "AL":
                     position.setAltitude(Integer.parseInt(values[i]));
@@ -255,7 +263,11 @@ public class XirgoProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Position.KEY_SATELLITES, Integer.parseInt(values[i]));
                     break;
                 case "BV":
-                    position.set(Position.KEY_BATTERY, Double.parseDouble(values[i]));
+                    if (values[i].contains(".")) {
+                        position.set(Position.KEY_BATTERY, Double.parseDouble(values[i]));
+                    } else {
+                        position.set(Position.KEY_BATTERY, Double.parseDouble((values[i])) / 100);
+                    }
                     break;
                 case "CQ":
                     position.set(Position.KEY_RSSI, Integer.parseInt(values[i]));
