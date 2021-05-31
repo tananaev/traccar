@@ -34,6 +34,7 @@ import org.traccar.notificators.NotificatorTraccar;
 import org.traccar.notificators.NotificatorWeb;
 import org.traccar.notificators.NotificatorTelegram;
 import org.traccar.notificators.NotificatorPushover;
+import org.traccar.notificators.NotificatorMqtt;
 
 public final class NotificatorManager {
 
@@ -68,6 +69,9 @@ public final class NotificatorManager {
                     break;
                 case "pushover":
                     defaultNotificator = NotificatorPushover.class.getCanonicalName();
+                    break;
+                case "mqtt":
+                    defaultNotificator = NotificatorMqtt.class.getCanonicalName();
                     break;
                 default:
                     break;

@@ -83,6 +83,7 @@ dependencies {
     implementation "javax.activation:activation:1.1.1"
     implementation 'com.amazonaws:aws-java-sdk-sns:1.11.692'
     testImplementation "junit:junit:4.13.1"
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4'
 }
 
 task copyDependencies(type: Copy) {
