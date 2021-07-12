@@ -127,4 +127,11 @@ public class TripReport extends BaseReport {
     public void setDriverName(String driverName) {
         this.driverName = driverName;
     }
+
+    private double ecoScore;
+
+    public double getEcoScore() { return ecoScore; }
+
+    public void setEcoScore(double ecoScore) {this.ecoScore = ecoScore;}
+
 }
