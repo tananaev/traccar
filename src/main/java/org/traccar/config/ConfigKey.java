@@ -33,7 +33,7 @@ public class ConfigKey<T> {
         this.defaultValue = defaultValue;
     }
 
-    String getKey() {
+    public String getKey() {
         return key;
     }
 

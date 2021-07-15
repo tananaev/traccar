@@ -562,6 +562,16 @@ public final class Keys {
             "max-age=3600,public");
 
     /**
+     * Enables/disables position forwarding. If 'forward.url' is set, it will be used for all position forwarding.
+     * Otherwise, device attribute 'forward.url' of the device (or its group) is used instead. If neither one
+     * is set, position forwarding is skipped.
+     */
+    public static final ConfigKey<Boolean> FORWARD_ENABLE = new ConfigKey<>(
+            "forward.enable",
+            Collections.singletonList(KeyType.GLOBAL),
+            true);
+
+    /**
      * URL to forward positions. Data is passed through URL parameters. For example, {uniqueId} for device identifier,
      * {latitude} and {longitude} for coordinates.
      */
@@ -625,6 +635,17 @@ public final class Keys {
     public static final ConfigKey<Integer> FORWARD_RETRY_LIMIT = new ConfigKey<>(
             "forward.retry.limit",
             Collections.singletonList(KeyType.GLOBAL));
+
+
+    /**
+     * Enables/disables event forwarding. If 'event.forward.url' is set, it will be used for all event forwarding.
+     * Otherwise, device attribute 'event.forward.url' of the device (or its group) is used instead. If neither one
+     * is set, event forwarding is skipped.
+     */
+    public static final ConfigKey<Boolean> EVENT_FORWARD_ENABLE = new ConfigKey<>(
+            "event.forward.enable",
+            Collections.singletonList(KeyType.GLOBAL),
+            true);
 
     /**
      * Events forwarding URL.

@@ -132,11 +132,12 @@ public class WebDataHandler extends BaseDataHandler {
         }
     }
 
-    public String formatRequest(Position position) throws UnsupportedEncodingException, JsonProcessingException {
+    public String formatRequest(
+            String baseUrl, Position position) throws UnsupportedEncodingException, JsonProcessingException {
 
         Device device = identityManager.getById(position.getDeviceId());
 
-        String request = url
+        String request = baseUrl
                 .replace("{name}", URLEncoder.encode(device.getName(), StandardCharsets.UTF_8.name()))
                 .replace("{uniqueId}", device.getUniqueId())
                 .replace("{status}", device.getStatus())
@@ -190,11 +191,10 @@ public class WebDataHandler extends BaseDataHandler {
         private final Invocation.Builder requestBuilder;
         private MediaType mediaType = MediaType.APPLICATION_JSON_TYPE;
 
-        AsyncRequestAndCallback(Position position) {
-
+        AsyncRequestAndCallback(Position position, String baseUrl) {
             String formattedUrl;
             try {
-                formattedUrl = json && !urlVariables ? url : formatRequest(position);
+                formattedUrl = json && !urlVariables ? baseUrl : formatRequest(baseUrl, position);
             } catch (UnsupportedEncodingException | JsonProcessingException e) {
                 throw new RuntimeException("Forwarding formatting error", e);
             }
@@ -286,11 +286,22 @@ public class WebDataHandler extends BaseDataHandler {
 
     @Override
     protected Position handlePosition(Position position) {
-
-        AsyncRequestAndCallback request = new AsyncRequestAndCallback(position);
-        request.send();
+        String forwardUrl = getForwardUrl(position.getDeviceId());
+        if (forwardUrl != null) {
+            AsyncRequestAndCallback request = new AsyncRequestAndCallback(position, forwardUrl);
+            request.send();
+        }
 
         return position;
+    }
+
+    private String getForwardUrl(long deviceId) {
+        if (url != null) {
+            // Global 'forward.url' has precedence over per-device overrides.
+            return url;
+        }
+        return Context.getIdentityManager().lookupAttributeString(
+                deviceId, Keys.FORWARD_URL.getKey(), null, false, false);
     }
 
     private Map<String, Object> prepareJsonPayload(Position position) {

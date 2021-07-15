@@ -52,8 +52,12 @@ public class EventForwarder {
     private static final String KEY_USERS = "users";
 
     public final void forwardEvent(Event event, Position position, Set<Long> users) {
+        String baseUrl = getEventForwardUrl(position.getDeviceId());
+        if (baseUrl == null) {
+            return;
+        }
 
-        Invocation.Builder requestBuilder = Context.getClient().target(url).request();
+        Invocation.Builder requestBuilder = Context.getClient().target(baseUrl).request();
 
         if (header != null && !header.isEmpty()) {
             for (String line: header.split("\\r?\\n")) {
@@ -75,6 +79,15 @@ public class EventForwarder {
                         LOGGER.warn("Event forwarding failed", throwable);
                     }
                 });
+    }
+
+    private String getEventForwardUrl(long deviceId) {
+        if (url != null) {
+            // Global 'event.forward.url' has precedence over per-device overrides.
+            return url;
+        }
+        return Context.getIdentityManager().lookupAttributeString(
+                deviceId, Keys.EVENT_FORWARD_URL.getKey(), null, false, false);
     }
 
     protected Map<String, Object> preparePayload(Event event, Position position, Set<Long> users) {
