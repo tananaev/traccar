@@ -1,6 +1,8 @@
 package org.traccar;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import org.traccar.database.MediaManager;
 
 import java.util.HashMap;
@@ -18,7 +20,7 @@ public class BaseTest {
         @Override
         public String writeFile(String uniqueId, ByteBuf buf, String extension) {
             String fileName = uniqueId + "/mock." + extension;
-            files.put(fileName, buf);
+            files.put(fileName, Unpooled.copiedBuffer(buf));
             return fileName;
         }
 

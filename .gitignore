@@ -4,10 +4,12 @@ nbactions.xml
 .project
 .settings
 .idea
+.vscode
 *.iml
 .DS_Store
 .checkstyle
 .gradle
 out
 build
+bin
 src/main/java/org/traccar/protobuf

@@ -1,7 +1,11 @@
 package org.traccar.protocol;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.CellTower;
 import org.traccar.model.Position;
 
 public class Gl200TextProtocolDecoderTest extends ProtocolTest {
@@ -54,6 +58,18 @@ public class Gl200TextProtocolDecoderTest extends ProtocolTest {
 
         verifyAttributes(decoder, buffer(
                 "+BUFF:GTSTC,410301,864802030022424,,,0,,,,,,,0228,0002,4EE8,1BFF489,00,20181207134332,EC90$"));
+        
+        Position position = (Position) decoder.decode(null, null, buffer(
+                "+BUFF:GTSTC,410301,864802030022424,,,0,,,,,,,0228,0002,4EE8,1BFF489,00,20181207134332,EC90$"));
+        assertNotNull(position.getNetwork());
+        assertNotNull(position.getNetwork().getCellTowers());
+        assertEquals(position.getNetwork().getCellTowers().size(), 1);
+        CellTower cell = position.getNetwork().getCellTowers().iterator().next();
+        assertEquals(Integer.valueOf("0228", 10), cell.getMobileCountryCode());
+        assertEquals(Integer.valueOf("0002", 10), cell.getMobileNetworkCode());
+        assertEquals(Integer.valueOf("4EE8", 16), cell.getLocationAreaCode());
+        assertEquals(Long.valueOf("1BFF489", 16), cell.getCellId());
+
 
         verifyPositions(decoder, buffer(
                 "+RESP:GTFRI,1A0900,860599000306845,G3-313,0,0,4,1,2.1,0,426.7,8.611466,47.681639,20181214134603,0228,0001,077F,4812,25.2,1,5.7,34,437.3,8.611600,47.681846,20181214134619,0228,0001,077F,4812,25.2,1,4.4,62,438.2,8.611893,47.681983,20181214134633,0228,0001,077F,4812,25.2,1,4.8,78,436.6,8.612236,47.682040,20181214134648,0228,0001,077F,4812,25.2,83,20181214134702,0654$"));
